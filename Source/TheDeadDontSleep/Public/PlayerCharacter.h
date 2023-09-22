@@ -14,7 +14,7 @@ enum class LandState : uint8 {
 };
 
 UENUM(BlueprintType)
-enum class AnimationState : uint8 {
+enum class AnimState : uint8 {
 	UNARMED = 0	UMETA(DisplayName = "Unarmed"),
 	PISTOL = 1	UMETA(DisplayName = "Pistol"),
 	RIFLE =	2	UMETA(DisplayName = "Rifle")
