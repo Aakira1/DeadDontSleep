@@ -9,19 +9,6 @@ APlayerCharacter::APlayerCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Setup Components for Player
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
-	TPSCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
-
-	// Attach Components To Player
-	TPSCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-
-	// Assign the class variables
-	CameraBoom->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f));
-	CameraBoom->TargetArmLength = 400.0f;
-	CameraBoom->bEnableCameraLag = false;
-	CameraBoom->CameraLagSpeed = 0.0f;
-
 	//Take Control of the default player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
@@ -49,7 +36,38 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 }
 
-void APlayerCharacter::ImpactOnLand()
+void APlayerCharacter::ImpactOnLand(UMovementComponent* MoveComp)
 {
+	float vel = abs(MoveComp->Velocity.Z);
+
+	/*
+		using a custom bool function to check if player velocity is in range to set landing State.
+	*/
+	if (inRange(vel, 300, 900)) 
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Normal")),
+			LandState::NORMAL;
+	
+	
+	
+	
+	//if (abs(MoveComp->Velocity.Z) >= inRange(300, 900))
+
+	//
+	//if (abs(MoveComp->Velocity.Z) >= inRange(300, 900))
+	//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Soft")),
+	//	LandState::SOFT;
+	//if (abs(MoveComp->Velocity.Z) > 1250)
+	//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Heavy")),
+	//	LandState::HEAVY;
+
+}
+
+bool APlayerCharacter::inRange(float Velocity, float X, float Y)
+{
+	if (Velocity < X && Velocity > Y)
+	{
+		return true;
+	}
+	return false;
 }
 

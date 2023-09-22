@@ -3,9 +3,22 @@
 #pragma once
 
 #include "Engine.h"
-#include "EngineUtils.h"
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
+
+UENUM(BlueprintType)
+enum class LandState : uint8 {
+	NORMAL = 0	UMETA(DisplayName = "Normal"),
+	SOFT = 1	UMETA(DisplayName = "Soft"),
+	HEAVY = 2	UMETA(DisplayName = "Heavy")
+};
+
+UENUM(BlueprintType)
+enum class AnimationState : uint8 {
+	UNARMED = 0	UMETA(DisplayName = "Unarmed"),
+	PISTOL = 1	UMETA(DisplayName = "Pistol"),
+	RIFLE =	2	UMETA(DisplayName = "Rifle")
+};
 
 UCLASS(Blueprintable, BlueprintType)
 class THEDEADDONTSLEEP_API APlayerCharacter : public ACharacter
@@ -19,24 +32,14 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	UPROPERTY()
-	//TObjectPtr<UCT_Cmpt_MantleSytem> a; 
-
 #pragma region Player Camera ------------------------------------------
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
 	bool isRightShoulder;
-	
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Camera")
-	UCameraComponent* TPSCamera;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Camera")
-	USpringArmComponent* CameraBoom;
 
 #pragma endregion
 #pragma region Player Components ------------------------------------------
-	
+
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	USceneComponent* Pistol;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
@@ -46,7 +49,7 @@ protected:
 	USceneComponent* Rifle;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	UChildActorComponent* RifleChild;
-	
+
 	// - Weapon System
 	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	//
@@ -57,7 +60,7 @@ protected:
 #pragma endregion
 #pragma region Player Character ------------------------------------------
 	/*
-	
+
 	*/
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "BP_ThirdPersonCharacter")
 	TObjectPtr<UTimelineComponent> Aim_Smooth;
@@ -69,6 +72,9 @@ protected:
 	TObjectPtr<UTimelineComponent> CrouchSmooth;
 #pragma endregion
 #pragma region Player Movement ------------------------------------------
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
+	LandState PLandingState;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	double TurnRate;
@@ -97,12 +103,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	double Forward;
 
-	//UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	//TEnumAsByte<LandState> LandState;
-
-	//UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	//... AnimationState;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	bool isJumping;
 
@@ -126,20 +126,20 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	bool isAttacking;
-
 #pragma endregion
+
+public:
 #pragma region Tick & Setup Player Input Component ------------------------------------------
-public:
-		// Called every frame
-		virtual void Tick(float DeltaTime) override;
 
-		// Called to bind functionality to input
-		virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 #pragma endregion
 
+	UFUNCTION()
+	void ImpactOnLand(UMovementComponent* MoveComp);
 
-
-public:
-	UFUNCTION(BlueprintCallable)
-	void ImpactOnLand();
+	bool inRange(float, float, float);
 };
