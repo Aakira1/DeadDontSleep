@@ -8,25 +8,25 @@ APlayerCharacter::APlayerCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 	//Take Control of the default player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
+	// Player Impact Height Determination
+	ImpactOnLand();
 }
 
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-}
 
+}
 
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 }
 
 // Called to bind functionality to input
@@ -36,38 +36,68 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 }
 
-void APlayerCharacter::ImpactOnLand(UMovementComponent* MoveComp)
+
+//Start & Stop the Players sprinting 
+void APlayerCharacter::IsSprinting()
 {
-	float vel = abs(MoveComp->Velocity.Z);
+	// boolean for isSprinting set to true
+	isSprinting = true;
 
-	/*
-		using a custom bool function to check if player velocity is in range to set landing State.
-	*/
-	if (inRange(vel, 300, 900)) 
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Normal")),
-			LandState::NORMAL;
-	
-	
-	
-	
-	//if (abs(MoveComp->Velocity.Z) >= inRange(300, 900))
-
-	//
-	//if (abs(MoveComp->Velocity.Z) >= inRange(300, 900))
-	//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Soft")),
-	//	LandState::SOFT;
-	//if (abs(MoveComp->Velocity.Z) > 1250)
-	//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Heavy")),
-	//	LandState::HEAVY;
-
+	// Max walk speed set to desired speed to match function requirements.
+	GetCharacterMovement()->MaxWalkSpeed = 600.0f;
 }
-
-bool APlayerCharacter::inRange(float Velocity, float X, float Y)
+void APlayerCharacter::StopSprinting() 
 {
-	if (Velocity < X && Velocity > Y)
+	// boolean for isSprinting set to false
+	isSprinting = false;
+
+	// Max walk speed set to desired speed to match function requirements.
+	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+}
+//Determines Players Height on Z velocity to add animation state of landing impact.
+void APlayerCharacter::ImpactOnLand()
+{
+	// Get Actor Z Location
+	float Z = GetActorLocation().Z;
+
+	/*Debugging Purpose Only*/
+	//FString Message = FString::Printf(TEXT("BeginPlay of %s - Location: %s"),
+	//	*(GetName()), *(GetActorLocation().ToString()));
+
+	if (GEngine)
 	{
-		return true;
+		/*Debugging Purpose Only*/
+		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, Message);
+		
+		if (abs(Z) >= 1 && abs(Z) <= 500)
+		{
+			GetActorLocation().Z;
+			
+			/*Debuggin Purpose Only*/
+			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Normal"));
+			
+			LandingState::NORMAL;
+		}
+		if (abs(Z) >= 501 && abs(Z) <= 900)
+		{
+			GetActorLocation().Z;
+			
+			/*Debuggin Purpose Only*/
+			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Soft"));
+			
+			LandingState::SOFT;
+		}
+		if (abs(Z) > 901 || abs(Z) == 0) {
+			GetActorLocation().Z;
+
+			/*Debugging Purpose Only*/
+			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Soft"));
+			
+			LandingState::HEAVY;
+		}
 	}
-	return false;
 }
+
+
+
 

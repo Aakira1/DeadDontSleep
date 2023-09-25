@@ -1,5 +1,4 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "Engine.h"
@@ -7,7 +6,7 @@
 #include "PlayerCharacter.generated.h"
 
 UENUM(BlueprintType)
-enum class LandState : uint8 {
+enum class LandingState : uint8 {
 	NORMAL = 0	UMETA(DisplayName = "Normal"),
 	SOFT = 1	UMETA(DisplayName = "Soft"),
 	HEAVY = 2	UMETA(DisplayName = "Heavy")
@@ -37,18 +36,24 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
 	bool isRightShoulder;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera")
+	float TargetArmLength;
+
 #pragma endregion
 #pragma region Player Components ------------------------------------------
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	USceneComponent* Pistol;
+	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	UChildActorComponent* PistolChild;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	USceneComponent* Rifle;
+
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	UChildActorComponent* RifleChild;
+
 
 	// - Weapon System
 	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
@@ -57,24 +62,17 @@ protected:
 	// - Mantle System
 	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	//
-#pragma endregion
-#pragma region Player Character ------------------------------------------
-	/*
 
-	*/
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "BP_ThirdPersonCharacter")
-	TObjectPtr<UTimelineComponent> Aim_Smooth;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "TPSCharacter");
-	TObjectPtr<UTimelineComponent> Slide;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "TPSCharacter");
-	TObjectPtr<UTimelineComponent> CrouchSmooth;
 #pragma endregion
 #pragma region Player Movement ------------------------------------------
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
-	LandState PLandingState;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
+	LandingState PLandingState;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
+	AnimState PAnimationState;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	double TurnRate;
@@ -127,6 +125,20 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	bool isAttacking;
 #pragma endregion
+#pragma region Player Detailed Properties ----------------------------
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Collision")
+	FVector PlayerLocation = GetActorLocation();
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Collision")
+	FHitResult fHasHit;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Collision")
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesArray;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Collision")
+	TArray<AActor*> ActorsToIgnore;
+
+#pragma endregion
 
 public:
 #pragma region Tick & Setup Player Input Component ------------------------------------------
@@ -138,8 +150,18 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 #pragma endregion
 
-	UFUNCTION()
-	void ImpactOnLand(UMovementComponent* MoveComp);
+	UFUNCTION(BlueprintCallable)
+	void ImpactOnLand();
 
-	bool inRange(float, float, float);
+	UFUNCTION(BlueprintCallable)
+	void IsSprinting();
+
+	UFUNCTION(BlueprintCallable)
+	void StopSprinting();
+
+protected:
+	//UFUNCTION(BlueprintImplementableEvent, Category = "Player Movement")
+	//void DodgeMontage(USkeletalMeshComponent* InMesh, UAnimMontage* GreaterThanZero, UAnimMontage* LessThanZero, bool Index);
+
+
 };
