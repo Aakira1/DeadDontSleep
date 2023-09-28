@@ -3,9 +3,12 @@
 
 #include "PlayerCharacter.h"
 
+
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
+	
+
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	//Take Control of the default player
@@ -13,6 +16,8 @@ APlayerCharacter::APlayerCharacter()
 
 	// Player Impact Height Determination
 	ImpactOnLand();
+	
+	
 }
 
 // Called when the game starts or when spawned
@@ -20,6 +25,33 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+}
+
+void APlayerCharacter::PlayerSlide()
+{
+	
+
+	if (GetVelocity().Length() > 500 && ACharacter::CanJump())
+	{
+		isSliding = true;
+
+		if (isWeaponEquip)
+		{
+			if (DoOnce.Execute())
+			{
+				Crouch();
+				Character->PlayAnimMontage(SlideMontage, 1.0, "None");
+				//switch (GetWorldTimerManager().SetTimer(TimerHandle, this, &APlayerCharacter::PlayerSlide, 1.0, "None"), 0.5, false)
+				//{
+				//case 0:
+				//	UnCrouch();
+				//	//CeilingTrace();
+				//case 1:
+				//	return;
+				//}
+			}
+		}
+	}
 }
 
 // Called every frame
@@ -69,7 +101,7 @@ void APlayerCharacter::ImpactOnLand()
 		/*Debugging Purpose Only*/
 		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, Message);
 		
-		if (abs(Z) >= 1 && abs(Z) <= 500)
+		if (!abs(Z) >= 1 && !abs(Z) <= 500)
 		{
 			GetActorLocation().Z;
 			
@@ -78,7 +110,7 @@ void APlayerCharacter::ImpactOnLand()
 			
 			LandingState::NORMAL;
 		}
-		if (abs(Z) >= 501 && abs(Z) <= 900)
+		if (!abs(Z) >= 501 && !abs(Z) <= 900)
 		{
 			GetActorLocation().Z;
 			
@@ -87,7 +119,7 @@ void APlayerCharacter::ImpactOnLand()
 			
 			LandingState::SOFT;
 		}
-		if (abs(Z) > 901 || abs(Z) == 0) {
+		if (!abs(Z) > 901 || !abs(Z) == 0) {
 			GetActorLocation().Z;
 
 			/*Debugging Purpose Only*/
