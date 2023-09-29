@@ -29,6 +29,7 @@ void APlayerCharacter::BeginPlay()
 
 void APlayerCharacter::PlayerSlide()
 {
+<<<<<<< Updated upstream
 	
 	//if (GetVelocity().Length() > 500 && ACharacter::CanJump())
 	//{
@@ -51,6 +52,29 @@ void APlayerCharacter::PlayerSlide()
 	//		}
 	//	}
 	//}
+=======
+	if (GetVelocity().Length() > 500 && ACharacter::CanJump())
+	{
+		isSliding = true;
+
+		if (isWeaponEquip)
+		{
+			if (DoOnce.Execute())
+			{
+				Crouch();
+				Character->PlayAnimMontage(SlideMontage, 1.0, "None");
+				//switch (GetWorldTimerManager().SetTimer(TimerHandle, this, &APlayerCharacter::PlayerSlide, 1.0, "None"), 0.5, false)
+				//{
+				//case 0:
+				//	UnCrouch();
+				//	//CeilingTrace();
+				//case 1:
+				//	return;
+				//}
+			}
+		}
+	}
+>>>>>>> Stashed changes
 }
 
 // Called every frame
@@ -58,6 +82,32 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
+}
+
+void APlayerCharacter::PlayerCrouching()
+{
+	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
+	traceObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
+
+	FVector Start = GetActorLocation();
+	FVector End = GetActorLocation() + GetActorRotation().Vector().UpVector * 100.0;
+
+	float Radius = 20.0;
+
+	// Ignore Specific Actors
+	TArray<AActor*> ignoreActors;
+	ignoreActors.Init(this, 1);
+
+	// Array of actors that are inside the radius of the sphere
+	TArray<AActor*> outActors;
+
+	//class the spheres location should hit against and include in the outActors array 
+	//UKismetSystemLibrary(GetWorld(), Start, End, Radius, traceObjectTypes, NULL, ignoreActors, outActors);
+
+	if (!isCrouching)
+	{
+
+	}
 }
 
 // Called to bind functionality to input
