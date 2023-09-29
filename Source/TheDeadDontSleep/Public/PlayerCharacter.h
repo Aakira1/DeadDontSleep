@@ -14,7 +14,7 @@ enum class LandingState : uint8 {
 };
 
 UENUM(BlueprintType)
-enum class ArmedState : uint8 {
+enum class AnimState : uint8 {
 	UNARMED = 0	UMETA(DisplayName = "Unarmed"),
 	PISTOL = 1	UMETA(DisplayName = "Pistol"),
 	RIFLE =	2	UMETA(DisplayName = "Rifle")
@@ -165,6 +165,7 @@ private:
 	UPROPERTY()
 	TEnumAsByte<ETimelineDirection::Type> TimelineDirection;
 
+
 #pragma endregion
 
 #pragma region Custom Blueprint Shortcuts
@@ -193,10 +194,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void PlayerSlide();
-
-	UFUNCTION(BlueprintCallable)
-	void PlayerCrouching();
-  
 #pragma endregion
 
 #pragma region Object Handles to reduce Indentation
