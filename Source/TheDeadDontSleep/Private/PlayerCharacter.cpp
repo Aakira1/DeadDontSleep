@@ -29,8 +29,6 @@ void APlayerCharacter::BeginPlay()
 
 void APlayerCharacter::PlayerSlide()
 {
-<<<<<<< Updated upstream
-	
 	//if (GetVelocity().Length() > 500 && ACharacter::CanJump())
 	//{
 	//	isSliding = true;
@@ -52,29 +50,7 @@ void APlayerCharacter::PlayerSlide()
 	//		}
 	//	}
 	//}
-=======
-	if (GetVelocity().Length() > 500 && ACharacter::CanJump())
-	{
-		isSliding = true;
 
-		if (isWeaponEquip)
-		{
-			if (DoOnce.Execute())
-			{
-				Crouch();
-				Character->PlayAnimMontage(SlideMontage, 1.0, "None");
-				//switch (GetWorldTimerManager().SetTimer(TimerHandle, this, &APlayerCharacter::PlayerSlide, 1.0, "None"), 0.5, false)
-				//{
-				//case 0:
-				//	UnCrouch();
-				//	//CeilingTrace();
-				//case 1:
-				//	return;
-				//}
-			}
-		}
-	}
->>>>>>> Stashed changes
 }
 
 // Called every frame
@@ -138,45 +114,45 @@ void APlayerCharacter::StopSprinting()
 //Determines Players Height on Z velocity to add animation state of landing impact.
 void APlayerCharacter::ImpactOnLand()
 {
-	//// Get Actor Z Location
-	//float Z = GetActorLocation().Z;
-	//
-	///*Debugging Purpose Only*/
-	////FString Message = FString::Printf(TEXT("BeginPlay of %s - Location: %s"),
-	////	*(GetName()), *(GetActorLocation().ToString()));
-	//
-	//if (GEngine)
-	//{
-	//	/*Debugging Purpose Only*/
-	//	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, Message);
-	//	
-	//	if (!abs(Z) >= 1 && !abs(Z) <= 500)
-	//	{
-	//		GetActorLocation().Z;
-	//		
-	//		/*Debuggin Purpose Only*/
-	//		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Normal"));
-	//		
-	//		LandingState::NORMAL;
-	//	}
-	//	if (!abs(Z) >= 501 && !abs(Z) <= 900)
-	//	{
-	//		GetActorLocation().Z;
-	//		
-	//		/*Debuggin Purpose Only*/
-	//		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Soft"));
-	//		
-	//		LandingState::SOFT;
-	//	}
-	//	if (!abs(Z) > 901 || !abs(Z) == 0) {
-	//		GetActorLocation().Z;
-	//
-	//		/*Debugging Purpose Only*/
-	//		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Soft"));
-	//		
-	//		LandingState::HEAVY;
-	//	}
-	//}
+	// Get Actor Z Location
+	float Z = GetActorLocation().Z;
+
+	/*Debugging Purpose Only*/
+	//FString Message = FString::Printf(TEXT("BeginPlay of %s - Location: %s"),
+	//	*(GetName()), *(GetActorLocation().ToString()));
+
+	if (GEngine)
+	{
+		/*Debugging Purpose Only*/
+		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, Message);
+		
+		if (!abs(Z) >= 1 && !abs(Z) <= 500)
+		{
+			GetActorLocation().Z;
+			
+			/*Debuggin Purpose Only*/
+			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Normal"));
+			
+			LandingState::NORMAL;
+		}
+		if (!abs(Z) >= 501 && !abs(Z) <= 900)
+		{
+			GetActorLocation().Z;
+			
+			/*Debuggin Purpose Only*/
+			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Soft"));
+			
+			LandingState::SOFT;
+		}
+		if (!abs(Z) > 901 || !abs(Z) == 0) {
+			GetActorLocation().Z;
+
+			/*Debugging Purpose Only*/
+			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Soft"));
+			
+			LandingState::HEAVY;
+		}
+	}
 }
 
 

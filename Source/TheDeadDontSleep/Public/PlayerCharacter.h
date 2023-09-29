@@ -165,7 +165,10 @@ private:
 	UPROPERTY()
 	TEnumAsByte<ETimelineDirection::Type> TimelineDirection;
 
+#pragma endregion
 
+#pragma region Custom Blueprint Shortcuts
+	//FDoOnce DoOnce = FDoOnce(false);
 #pragma endregion
 
 public:
@@ -193,7 +196,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void PlayerCrouching();
-
+  
 #pragma endregion
 
 #pragma region Object Handles to reduce Indentation
