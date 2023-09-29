@@ -2,6 +2,7 @@
 #pragma once
 
 #include "Engine.h"
+#include "DoOnce.h"
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
@@ -31,7 +32,18 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-#pragma region Player Camera ------------------------------------------
+
+#pragma region Random Player Variables
+	
+	UPROPERTY()
+	UTimelineComponent* TLC_Slide;
+	
+	UPROPERTY()
+	UCurveFloat* CF_Slide;
+
+#pragma endregion
+
+#pragma region Player Camera 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
 	bool isRightShoulder;
@@ -40,7 +52,8 @@ protected:
 	float TargetArmLength;
 
 #pragma endregion
-#pragma region Player Components ------------------------------------------
+
+#pragma region Player Components 
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	USceneComponent* Pistol;
@@ -66,7 +79,8 @@ protected:
 
 
 #pragma endregion
-#pragma region Player Movement ------------------------------------------
+
+#pragma region Player Movement 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	LandingState PLandingState;
@@ -125,7 +139,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	bool isAttacking;
 #pragma endregion
-#pragma region Player Detailed Properties ----------------------------
+
+#pragma region Player Detailed Properties
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Collision")
 	FVector PlayerLocation = GetActorLocation();
 
@@ -138,10 +153,27 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Collision")
 	TArray<AActor*> ActorsToIgnore;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Player Montage")
+	APlayerCharacter* Character;
+
+	UPROPERTY(EditAnywhere, Category = "Player Montage")
+	UAnimMontage* SlideMontage;
+private:
+	UPROPERTY()
+	FTimerHandle TimerHandle;
+
+	UPROPERTY()
+	TEnumAsByte<ETimelineDirection::Type> TimelineDirection;
+
+
+#pragma endregion
+
+#pragma region Custom Blueprint Shortcuts
+	//FDoOnce DoOnce = FDoOnce(false);
 #pragma endregion
 
 public:
-#pragma region Tick & Setup Player Input Component ------------------------------------------
+#pragma region Tick & Setup Player Input Component 
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -150,6 +182,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 #pragma endregion
 
+#pragma region Movement Functions
 	UFUNCTION(BlueprintCallable)
 	void ImpactOnLand();
 
@@ -159,9 +192,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StopSprinting();
 
-protected:
-	//UFUNCTION(BlueprintImplementableEvent, Category = "Player Movement")
-	//void DodgeMontage(USkeletalMeshComponent* InMesh, UAnimMontage* GreaterThanZero, UAnimMontage* LessThanZero, bool Index);
+	UFUNCTION(BlueprintCallable)
+	void PlayerSlide();
+#pragma endregion
 
+#pragma region Object Handles to reduce Indentation
+	UPROPERTY()
+	FDoOnce DoOnce;
+#pragma endregion
+
+//protected:
+//	//UFUNCTION(BlueprintImplementableEvent, Category = "Player Movement")
+//	//void DodgeMontage(USkeletalMeshComponent* InMesh, UAnimMontage* GreaterThanZero, UAnimMontage* LessThanZero, bool Index);
+//
 
 };
