@@ -29,7 +29,7 @@ void APlayerCharacter::BeginPlay()
 
 void APlayerCharacter::PlayerSlide()
 {
-	
+	// Player Sliding
 
 	if (GetVelocity().Length() > 500 && ACharacter::CanJump())
 	{
