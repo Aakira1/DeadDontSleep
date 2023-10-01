@@ -93,35 +93,29 @@ void APlayerCharacter::ImpactOnLand()
 	float Z = GetActorLocation().Z;
 
 	/*Debugging Purpose Only*/
-	//FString Message = FString::Printf(TEXT("BeginPlay of %s - Location: %s"),
-	//	*(GetName()), *(GetActorLocation().ToString()));
+	FString Message = FString::Printf(TEXT("BeginPlay of %s - Location: %s"),
+		*(GetName()), *(GetActorLocation().ToString()));
 
 	if (GEngine)
 	{
 		/*Debugging Purpose Only*/
-		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, Message);
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, Message);
 		
-		if (!abs(Z) >= 1 && !abs(Z) <= 500)
+		if ((abs(Z) >= 1) == true && (abs(Z) <= 500) == true)
 		{
-			GetActorLocation().Z;
-			
 			/*Debuggin Purpose Only*/
-			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Normal"));
-			
+			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("True"));
 			LandingState::NORMAL;
 		}
-		if (!abs(Z) >= 501 && !abs(Z) <= 900)
+		if ((abs(Z) >= 501) == true && (abs(Z) <= 900) == true)
 		{
-			GetActorLocation().Z;
-			
 			/*Debuggin Purpose Only*/
-			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Soft"));
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Soft"));
 			
 			LandingState::SOFT;
 		}
-		if (!abs(Z) > 901 || !abs(Z) == 0) {
-			GetActorLocation().Z;
-
+		if ((abs(Z) > 1250) == true) 
+		{
 			/*Debugging Purpose Only*/
 			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Soft"));
 			
