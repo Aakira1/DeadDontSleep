@@ -14,9 +14,9 @@ class THEDEADDONTSLEEP_API UCharacterSystemComponent : public UAbilitySystemComp
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditDefaultsAnywhere)
+	//UPROPERTY(EditDefaultsAnywhere)
 	bool CharacterAbilitiesGiven = false;
-	UPROPERTY(EditDefaultsAnywhere)
+	//UPROPERTY(EditDefaultsAnywhere)
 	bool StartupEffectsApplied = false;
 
 	FReceivedDamageDelegate ReceivedDamage;
