@@ -4,3 +4,10 @@
 
 #include "CoreMinimal.h"
 
+UENUM(BlueprintType)
+enum class DDSAbilityID : uint8
+{
+	None UMETA(DisplayName = "None"),
+	Confirm UMETA(DisplayName = "None"),
+	Cancel UMETA(DisplayName = "None")
+};

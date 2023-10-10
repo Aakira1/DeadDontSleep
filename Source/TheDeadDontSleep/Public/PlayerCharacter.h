@@ -1,10 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #pragma once
-
-#include "Engine.h"
+//#include "AbilitySystemInterface.h"
+#include "Engine.h" 
 #include "DoOnce.h"
 #include "GameFramework/Character.h"
+#include "AbilitySystemInterface.h"
+#include <GameplayEffectTypes.h>
 #include "PlayerCharacter.generated.h"
+
 
 UENUM(BlueprintType)
 enum class LandingState : uint8 {
@@ -20,8 +23,8 @@ enum class AnimState : uint8 {
 	RIFLE =	2	UMETA(DisplayName = "Rifle")
 };
 
-UCLASS(Blueprintable, BlueprintType)
-class THEDEADDONTSLEEP_API APlayerCharacter : public ACharacter
+UCLASS()
+class APlayerCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -29,9 +32,24 @@ public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
 
+	/****************
+	* Ability System
+	*****************/
+	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	class UGDAttributeSetBase* GetAttributeSetBase() const;
+
+	
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY()
+	TWeakObjectPtr<class UCharacterSystemComponent> AbilityComponent;
+
+	UPROPERTY()
+	TWeakObjectPtr<class UCharacterAttributeSetBase> AttributeSetBase;
 
 #pragma region Random Player Variables
 	
@@ -173,14 +191,16 @@ private:
 #pragma endregion
 
 public:
-#pragma region Tick & Setup Player Input Component 
+#pragma region Special Functions
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-#pragma endregion
+
+	
+#pragma endregion Tick, Input, UAbilitySystemComponent
 
 #pragma region Movement Functions
 	UFUNCTION(BlueprintCallable)
@@ -192,18 +212,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StopSprinting();
 
-	UFUNCTION(BlueprintCallable)
-	void PlayerSlide();
+	//UFUNCTION(BlueprintCallable)
+	//void PlayerSlide();
 #pragma endregion
 
 #pragma region Object Handles to reduce Indentation
 	UPROPERTY()
 	FDoOnce DoOnce;
 #pragma endregion
-
-//protected:
-//	//UFUNCTION(BlueprintImplementableEvent, Category = "Player Movement")
-//	//void DodgeMontage(USkeletalMeshComponent* InMesh, UAnimMontage* GreaterThanZero, UAnimMontage* LessThanZero, bool Index);
-//
 
 };

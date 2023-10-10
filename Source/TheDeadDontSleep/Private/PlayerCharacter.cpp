@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PlayerCharacter.h"
-
+#include "Character/Abilities/CharacterSystemComponent.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -12,10 +12,19 @@ APlayerCharacter::APlayerCharacter()
 	//Take Control of the default player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
-	// Player Impact Height Determination
-	ImpactOnLand();
-	
-	
+	//AbilitySystemComponent = CreateDefaultSubobject<UCharacterSystemComponent>("Ability System Component");
+}
+
+
+UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
+{
+	//needs to return AbilitySystemComponent Object
+	return AbilityComponent.Get();
+}
+
+UGDAttributeSetBase* APlayerCharacter::GetAttributeSetBase() const
+{
+	return nullptr;
 }
 
 // Called when the game starts or when spawned
@@ -23,33 +32,6 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-}
-
-void APlayerCharacter::PlayerSlide()
-{
-	// Player Sliding
-
-	if (GetVelocity().Length() > 500 && ACharacter::CanJump())
-	{
-		isSliding = true;
-
-		if (isWeaponEquip)
-		{
-			if (DoOnce.Execute())
-			{
-				Crouch();
-				Character->PlayAnimMontage(SlideMontage, 1.0, "None");
-				//switch (GetWorldTimerManager().SetTimer(TimerHandle, this, &APlayerCharacter::PlayerSlide, 1.0, "None"), 0.5, false)
-				//{
-				//case 0:
-				//	UnCrouch();
-				//	//CeilingTrace();
-				//case 1:
-				//	return;
-				//}
-			}
-		}
-	}
 }
 
 // Called every frame
