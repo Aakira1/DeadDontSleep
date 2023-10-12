@@ -6,9 +6,11 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include <GameplayEffectTypes.h>
+#include <Character/Abilities/AttributeSets/CharacterAttributeSetBase.h>
 #include "PlayerCharacter.generated.h"
 
 
+#pragma region UENUMS
 UENUM(BlueprintType)
 enum class LandingState : uint8 {
 	NORMAL = 0	UMETA(DisplayName = "Normal"),
@@ -22,6 +24,7 @@ enum class AnimState : uint8 {
 	PISTOL = 1	UMETA(DisplayName = "Pistol"),
 	RIFLE =	2	UMETA(DisplayName = "Rifle")
 };
+#pragma endregion Likley To moved to a data set
 
 UCLASS()
 class APlayerCharacter : public ACharacter, public IAbilitySystemInterface
@@ -31,7 +34,8 @@ class APlayerCharacter : public ACharacter, public IAbilitySystemInterface
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
-
+/*---------------------------------*/#pragma region GAS Ability system
+public:
 	/****************
 	* Ability System
 	*****************/
@@ -39,66 +43,39 @@ public:
 
 	class UGDAttributeSetBase* GetAttributeSetBase() const;
 
-	
+	UFUNCTION()
+	virtual void InitializeAttributes();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UPROPERTY()
-	TWeakObjectPtr<class UCharacterSystemComponent> AbilityComponent;
+	class UCharacterSystemComponent* AbilityComponent;
 
 	UPROPERTY()
-	TWeakObjectPtr<class UCharacterAttributeSetBase> AttributeSetBase;
+	class UCharacterAttributeSetBase* AttributeSetBase;
 
-#pragma region Random Player Variables
-	
-	UPROPERTY()
-	UTimelineComponent* TLC_Slide;
-	
-	UPROPERTY()
-	UCurveFloat* CF_Slide;
+	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
+	//TSubclassOf<class UGameplayEffect> DefaultAttributeEffect;
 
-#pragma endregion
+#pragma endregion GAS System
 
-#pragma region Player Camera 
-
+/*---------------------------------*/#pragma region Player Properties 
+public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
 	bool isRightShoulder;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera")
 	float TargetArmLength;
 
-#pragma endregion
-
-#pragma region Player Components 
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
-	USceneComponent* Pistol;
-	
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
-	UChildActorComponent* PistolChild;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
-	USceneComponent* Rifle;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
-	UChildActorComponent* RifleChild;
+	UFUNCTION(BlueprintCallable, Category = "Player|Controller")
+	virtual void PossessedBy(AController* NewController);
 
 
-	// - Weapon System
-	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
-	//
+#pragma endregion Player Camera Settings
 
-	// - Mantle System
-	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
-	//
-
-
-
-#pragma endregion
-
-#pragma region Player Movement 
+/*---------------------------------*/#pragma region Player Movement 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	LandingState PLandingState;
@@ -156,9 +133,23 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	bool isAttacking;
-#pragma endregion
+#pragma region Movement Functions
+	UFUNCTION(BlueprintCallable)
+	void ImpactOnLand();
 
-#pragma region Player Detailed Properties
+	UFUNCTION(BlueprintCallable)
+	void IsSprinting();
+
+	UFUNCTION(BlueprintCallable)
+	void StopSprinting();
+
+	//UFUNCTION(BlueprintCallable)
+	//void PlayerSlide();
+#pragma endregion Player Movement Functions
+
+#pragma endregion Player Movement
+
+/*---------------------------------*/#pragma region Player Detailed Properties
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Collision")
 	FVector PlayerLocation = GetActorLocation();
 
@@ -186,39 +177,20 @@ private:
 
 #pragma endregion
 
-#pragma region Custom Blueprint Shortcuts
-	//FDoOnce DoOnce = FDoOnce(false);
-#pragma endregion
-
+/*---------------------------------*/#pragma region Special Functions
 public:
-#pragma region Special Functions
-
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	
+
 #pragma endregion Tick, Input, UAbilitySystemComponent
 
-#pragma region Movement Functions
-	UFUNCTION(BlueprintCallable)
-	void ImpactOnLand();
-
-	UFUNCTION(BlueprintCallable)
-	void IsSprinting();
-
-	UFUNCTION(BlueprintCallable)
-	void StopSprinting();
-
-	//UFUNCTION(BlueprintCallable)
-	//void PlayerSlide();
-#pragma endregion
-
-#pragma region Object Handles to reduce Indentation
+/*---------------------------------*/#pragma region Object Handles to reduce Indentation
 	UPROPERTY()
 	FDoOnce DoOnce;
-#pragma endregion
+#pragma endregion Custom Replicates of Blueprint Functions
 
 };

@@ -7,7 +7,7 @@
 #include "AbilitySystemComponent.h"
 #include "CharacterAttributeSetBase.generated.h"
 
-// Uses macros from AttributeSet.h
+// Uses macros from AttributeSet.h (Boilerplate MACRO)
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \
@@ -21,6 +21,16 @@ class THEDEADDONTSLEEP_API UCharacterAttributeSetBase : public UAttributeSet
 	GENERATED_BODY()
 	
 public:
+
+
+
+	
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+
 	UPROPERTY(BlueprintReadOnly, Category = "Health", ReplicatedUsing = OnRep_Health)
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UCharacterAttributeSetBase, Health)
@@ -66,7 +76,6 @@ public:
 	UFUNCTION()
 	virtual void OnRep_MaxMentalHealth(const FGameplayAttributeData& OldMaxMentalHealth);
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 
 };

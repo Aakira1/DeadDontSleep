@@ -12,14 +12,18 @@ APlayerCharacter::APlayerCharacter()
 	//Take Control of the default player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
-	//AbilitySystemComponent = CreateDefaultSubobject<UCharacterSystemComponent>("Ability System Component");
+	AbilityComponent = CreateDefaultSubobject<UCharacterSystemComponent>("Ability System Component");
+	AbilityComponent->SetIsReplicated(true);
+	AbilityComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+	
+	AttributeSetBase = CreateDefaultSubobject<UCharacterAttributeSetBase>("Attributes");
 }
 
 
 UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
 {
 	//needs to return AbilitySystemComponent Object
-	return AbilityComponent.Get();
+	return AbilityComponent;
 }
 
 UGDAttributeSetBase* APlayerCharacter::GetAttributeSetBase() const
@@ -27,11 +31,31 @@ UGDAttributeSetBase* APlayerCharacter::GetAttributeSetBase() const
 	return nullptr;
 }
 
+void APlayerCharacter::InitializeAttributes()
+{
+	if (AbilityComponent /*&& DefaultAttributeEffect*/) {
+
+	}
+}
+
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+}
+
+void APlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (AbilityComponent)
+	{
+		AbilityComponent->InitAbilityActorInfo(this, this);
+	}
+
+	// ASC mixemode replication requires that the ASC owner's owner be the controller
+	SetOwner(NewController);
 }
 
 // Called every frame
