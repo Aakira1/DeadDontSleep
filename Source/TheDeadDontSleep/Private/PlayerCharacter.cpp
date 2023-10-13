@@ -3,6 +3,8 @@
 #include "PlayerCharacter.h"
 #include "Character/Abilities/CharacterSystemComponent.h"
 
+
+
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
@@ -12,30 +14,12 @@ APlayerCharacter::APlayerCharacter()
 	//Take Control of the default player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
+	// Ability System Component Initialized 
 	AbilityComponent = CreateDefaultSubobject<UCharacterSystemComponent>("Ability System Component");
 	AbilityComponent->SetIsReplicated(true);
 	AbilityComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 	
 	AttributeSetBase = CreateDefaultSubobject<UCharacterAttributeSetBase>("Attributes");
-}
-
-
-UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
-{
-	//needs to return AbilitySystemComponent Object
-	return AbilityComponent;
-}
-
-UGDAttributeSetBase* APlayerCharacter::GetAttributeSetBase() const
-{
-	return nullptr;
-}
-
-void APlayerCharacter::InitializeAttributes()
-{
-	if (AbilityComponent /*&& DefaultAttributeEffect*/) {
-
-	}
 }
 
 // Called when the game starts or when spawned
@@ -45,24 +29,11 @@ void APlayerCharacter::BeginPlay()
 
 }
 
-void APlayerCharacter::PossessedBy(AController* NewController)
-{
-	Super::PossessedBy(NewController);
-
-	if (AbilityComponent)
-	{
-		AbilityComponent->InitAbilityActorInfo(this, this);
-	}
-
-	// ASC mixemode replication requires that the ASC owner's owner be the controller
-	SetOwner(NewController);
-}
-
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+
 }
 
 // Called to bind functionality to input
@@ -70,6 +41,88 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	/*
+		Setup Action Bindings Here
+	*/
+	
+
+	BindInput();
+}
+
+
+UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
+{
+	//needs to return AbilitySystemComponent Object
+	return AbilityComponent;
+}
+
+void APlayerCharacter::InitializeAbilities()
+{
+	// Give Abilities, Server Only
+	if (!HasAuthority() || !AbilityComponent) return;
+
+	for (TSubclassOf<UGGGameplayAbility>& Ability : DefaultAbilities)
+	{
+		//this will determine based on the players level when to give the ability
+		AbilityComponent->GiveAbility(FGameplayAbilitySpec(Ability, 1, 
+			static_cast<int32>(Ability.GetDefaultObject()->AbilityInputID), this));
+	}
+}
+
+void APlayerCharacter::InitializeEffects()
+{
+	if (!AbilityComponent) return;
+
+	FGameplayEffectContextHandle EffectContext = AbilityComponent->MakeEffectContext();
+	EffectContext.AddSourceObject(this);
+
+	for (TSubclassOf<UGameplayEffect>& Effect : DefaultEffects)
+	{
+		FGameplayEffectSpecHandle SpecHandle = AbilityComponent->MakeOutgoingSpec(Effect, 1, EffectContext);
+		if (SpecHandle.IsValid())
+		{
+			FActiveGameplayEffectHandle GEHandle = AbilityComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		}
+	}
+}
+
+
+
+void APlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (!AbilityComponent) return;
+
+	AbilityComponent->InitAbilityActorInfo(this, this);
+
+	InitializeAbilities();
+	InitializeEffects();
+}
+
+void APlayerCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	if (!AbilityComponent) return;
+
+	AbilityComponent->InitAbilityActorInfo(this, this);
+
+	BindInput();
+
+	InitializeEffects();
+}
+
+void APlayerCharacter::BindInput()
+{
+	if (bIsInputBound || !AbilityComponent || !IsValid(InputComponent)) return;
+
+	FTopLevelAssetPath EnumAssetPath = FTopLevelAssetPath(FName("/Script/TheDeadDontSleep"), FName("EAbilityInputID"));
+	AbilityComponent->BindAbilityActivationToInputComponent(
+		InputComponent, FGameplayAbilityInputBinds(FString("Confirm"), FString("Cancel"),
+			EnumAssetPath, static_cast<int32>(EAbilityInputID::Confirm), static_cast<int32>(EAbilityInputID::Cancel)));
+
+	bIsInputBound = true;
 }
 
 

@@ -2,23 +2,37 @@
 
 
 #include "Character/Abilities/AttributeSets/CharacterAttributeSetBase.h"
-#include "Net/UnrealNetwork.h"
-#include "GameplayEffect.h"
-#include "GameplayEffectExtension.h"
 
 
 
 
-void UCharacterAttributeSetBase::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+
+
+
+UCharacterAttributeSetBase::UCharacterAttributeSetBase()
+	: Health(40.0f), MaxHealth(100.0f)
 {
-	// this is called whenever an attribute chang, so max health etc 
-	Super::PreAttributeBaseChange(Attribute, NewValue);
-
-	//if a max value changes, adjust current to keep current % of current max
-	
 
 }
+void UCharacterAttributeSetBase::ClampAttributeOnChange(const FGameplayAttribute& Attribute, float& NewValue) const
+{
+	if (Attribute == GetHealthAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxHealth());
+	}
+}
+void UCharacterAttributeSetBase::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const
+{
+	Super::PreAttributeBaseChange(Attribute, NewValue);
+	
+	ClampAttributeOnChange(Attribute, NewValue);
+}
+void UCharacterAttributeSetBase::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+{
+	Super::PreAttributeBaseChange(Attribute, NewValue);
 
+	ClampAttributeOnChange(Attribute, NewValue);
+}
 void UCharacterAttributeSetBase::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
@@ -28,7 +42,6 @@ void UCharacterAttributeSetBase::PostGameplayEffectExecute(const struct FGamepla
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
 	}
 }
-
 void UCharacterAttributeSetBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -41,7 +54,6 @@ void UCharacterAttributeSetBase::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 	DOREPLIFETIME_CONDITION_NOTIFY(UCharacterAttributeSetBase, MaxMentalHealth, COND_None, REPNOTIFY_Always);
 
 }
-
 void UCharacterAttributeSetBase::OnRep_Health(const FGameplayAttributeData& OldHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharacterAttributeSetBase, Health, OldHealth);

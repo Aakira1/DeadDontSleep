@@ -7,7 +7,10 @@
 #include "AbilitySystemInterface.h"
 #include <GameplayEffectTypes.h>
 #include <Character/Abilities/AttributeSets/CharacterAttributeSetBase.h>
+#include <Character/Abilities/GameplayAbilities/GGGameplayAbility.h>
 #include "PlayerCharacter.generated.h"
+
+
 
 
 #pragma region UENUMS
@@ -34,21 +37,43 @@ class APlayerCharacter : public ACharacter, public IAbilitySystemInterface
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
+
+/*---------------------------------*/#pragma region Special Functions
+public:
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	virtual void BindInput();
+	bool bIsInputBound{ false };
+
+#pragma endregion Tick, Input, Begin
+#pragma region
+protected:
+	////Put Input mappings in here
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	//class UInputAction* FireAbilityAction;
+	//
+	////Functions go here
+	//void OnFireAbility(const FInputActionValue& Value);
+
+#pragma endregion
 /*---------------------------------*/#pragma region GAS Ability system
 public:
 	/****************
 	* Ability System
 	*****************/
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-
-	class UGDAttributeSetBase* GetAttributeSetBase() const;
-
-	UFUNCTION()
-	virtual void InitializeAttributes();
+	virtual void InitializeAbilities();
+	virtual void InitializeEffects();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 
 	UPROPERTY()
 	class UCharacterSystemComponent* AbilityComponent;
@@ -56,11 +81,13 @@ protected:
 	UPROPERTY()
 	class UCharacterAttributeSetBase* AttributeSetBase;
 
-	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
-	//TSubclassOf<class UGameplayEffect> DefaultAttributeEffect;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
+	TArray<TSubclassOf<class UGGGameplayAbility>> DefaultAbilities;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
+	TArray<TSubclassOf<class UGameplayEffect>> DefaultEffects;
 
 #pragma endregion GAS System
-
 /*---------------------------------*/#pragma region Player Properties 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
@@ -69,14 +96,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera")
 	float TargetArmLength;
 
-	UFUNCTION(BlueprintCallable, Category = "Player|Controller")
+	//UFUNCTION(BlueprintCallable, Category = "GAS")
 	virtual void PossessedBy(AController* NewController);
+	//UFUNCTION(BlueprintCallable, Category = "GAS")
+	virtual void OnRep_PlayerState() override;	
 
 
 #pragma endregion Player Camera Settings
-
 /*---------------------------------*/#pragma region Player Movement 
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	LandingState PLandingState;
 
@@ -116,9 +143,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	bool isAiming;
 
-	//UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	//TObjectPtr<UUI_Crosshair_C> UIcrosshair;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	bool isPistolEquip;
 
@@ -148,7 +172,6 @@ public:
 #pragma endregion Player Movement Functions
 
 #pragma endregion Player Movement
-
 /*---------------------------------*/#pragma region Player Detailed Properties
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Collision")
 	FVector PlayerLocation = GetActorLocation();
@@ -176,18 +199,6 @@ private:
 
 
 #pragma endregion
-
-/*---------------------------------*/#pragma region Special Functions
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-
-#pragma endregion Tick, Input, UAbilitySystemComponent
-
 /*---------------------------------*/#pragma region Object Handles to reduce Indentation
 	UPROPERTY()
 	FDoOnce DoOnce;

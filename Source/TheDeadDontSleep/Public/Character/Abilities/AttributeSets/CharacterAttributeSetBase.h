@@ -4,7 +4,11 @@
 
 #include "Engine.h"
 #include "AttributeSet.h"
+#include "Net/UnrealNetwork.h"
+#include "Character/Abilities/CharacterSystemComponent.h"
 #include "AbilitySystemComponent.h"
+#include "GameplayEffect.h"
+#include "GameplayEffectExtension.h"
 #include "CharacterAttributeSetBase.generated.h"
 
 // Uses macros from AttributeSet.h (Boilerplate MACRO)
@@ -22,13 +26,15 @@ class THEDEADDONTSLEEP_API UCharacterAttributeSetBase : public UAttributeSet
 	
 public:
 
+	UCharacterAttributeSetBase();
 
-
-	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void ClampAttributeOnChange(const FGameplayAttribute& Attribute, float& NewValue) const;
+	virtual void PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const override;
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 
 
 	UPROPERTY(BlueprintReadOnly, Category = "Health", ReplicatedUsing = OnRep_Health)
@@ -75,6 +81,8 @@ public:
 	virtual void OnRep_MentalHealth(const FGameplayAttributeData& OldMentalHealth);
 	UFUNCTION()
 	virtual void OnRep_MaxMentalHealth(const FGameplayAttributeData& OldMaxMentalHealth);
+
+
 
 
 

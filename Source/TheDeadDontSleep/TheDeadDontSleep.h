@@ -5,9 +5,11 @@
 #include "CoreMinimal.h"
 
 UENUM(BlueprintType)
-enum class DDSAbilityID : uint8
+enum class EAbilityInputID : uint8
 {
 	None UMETA(DisplayName = "None"),
-	Confirm UMETA(DisplayName = "None"),
-	Cancel UMETA(DisplayName = "None")
+	Confirm UMETA(DisplayName = "Confirm"),
+	Cancel UMETA(DisplayName = "Cancel"),
+	DamageAbility UMETA(DisplayName = "Damage Ability"),
+	FireAbility UMETA(DisplayName = "Fire Ability")
 };
