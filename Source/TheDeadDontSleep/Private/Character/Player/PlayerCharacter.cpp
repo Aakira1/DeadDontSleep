@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "PlayerCharacter.h"
+#include "Character/Player/PlayerCharacter.h"
 #include "Character/Abilities/CharacterSystemComponent.h"
 
 
@@ -20,6 +20,7 @@ APlayerCharacter::APlayerCharacter()
 	AbilityComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 	
 	AttributeSetBase = CreateDefaultSubobject<UCharacterAttributeSetBase>("Attributes");
+
 }
 
 // Called when the game starts or when spawned
@@ -27,6 +28,20 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (AbilityComponent && AttributeSetBase)
+	{
+		// Initialize Gameplay Ability Component
+		AbilityComponent->InitAbilityActorInfo(this, this);
+
+		// set default attribute values
+		AttributeSetBase->InitHealth(Avg_Health);
+		AttributeSetBase->InitStamina(Avg_Stamina);
+		AttributeSetBase->InitMentalHealth(Avg_Mental_Health);
+		// set max attribute values
+		AttributeSetBase->InitMaxHealth(MaxHealth);
+		AttributeSetBase->InitMaxStamina(Max_Stamina);
+		AttributeSetBase->InitMaxMentalHealth(Max_Mental_Health);
+	}
 }
 
 // Called every frame
@@ -85,8 +100,6 @@ void APlayerCharacter::InitializeEffects()
 		}
 	}
 }
-
-
 
 void APlayerCharacter::PossessedBy(AController* NewController)
 {

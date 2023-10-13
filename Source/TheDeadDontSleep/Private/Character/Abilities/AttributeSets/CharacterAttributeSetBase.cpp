@@ -4,13 +4,7 @@
 #include "Character/Abilities/AttributeSets/CharacterAttributeSetBase.h"
 
 
-
-
-
-
-
 UCharacterAttributeSetBase::UCharacterAttributeSetBase()
-	: Health(40.0f), MaxHealth(100.0f)
 {
 
 }

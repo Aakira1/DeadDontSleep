@@ -2,7 +2,7 @@
 #pragma once
 //#include "AbilitySystemInterface.h"
 #include "Engine.h" 
-#include "DoOnce.h"
+#include "CustomFunctions/DoOnce.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include <GameplayEffectTypes.h>
@@ -86,6 +86,23 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
 	TArray<TSubclassOf<class UGameplayEffect>> DefaultEffects;
+
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
+	float Avg_Health = 100.0;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
+	float Avg_Stamina = 100.0;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
+	float Avg_Mental_Health = 100.0;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
+	float MaxHealth = 100.0;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
+	float Max_Stamina = 100.0;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
+	float Max_Mental_Health = 100.0;
+
+	//Init Attributes
+	FORCEINLINE class UCharacterAttributeSetBase* GetAttributes() const { return AttributeSetBase; }
 
 #pragma endregion GAS System
 /*---------------------------------*/#pragma region Player Properties 
