@@ -2,6 +2,8 @@
 
 
 #include "Character/Abilities/AttributeSets/CharacterAttributeSetBase.h"
+#include "GameplayEffect.h"
+#include "GameplayEffectExtension.h"
 
 
 UCharacterAttributeSetBase::UCharacterAttributeSetBase()
@@ -35,6 +37,14 @@ void UCharacterAttributeSetBase::PostGameplayEffectExecute(const struct FGamepla
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
 	}
+	if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
+	{
+		SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
+	}
+	if (Data.EvaluatedData.Attribute == GetMentalHealthAttribute())
+	{
+		SetMentalHealth(FMath::Clamp(GetMentalHealth(), 0.f, GetMentalHealth()));
+	}
 }
 void UCharacterAttributeSetBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -47,29 +57,5 @@ void UCharacterAttributeSetBase::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 	DOREPLIFETIME_CONDITION_NOTIFY(UCharacterAttributeSetBase, MentalHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCharacterAttributeSetBase, MaxMentalHealth, COND_None, REPNOTIFY_Always);
 
-}
-void UCharacterAttributeSetBase::OnRep_Health(const FGameplayAttributeData& OldHealth)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharacterAttributeSetBase, Health, OldHealth);
-}
-void UCharacterAttributeSetBase::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharacterAttributeSetBase, MaxHealth, OldMaxHealth);
-}
-void UCharacterAttributeSetBase::OnRep_Stamina(const FGameplayAttributeData& OldStamina)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharacterAttributeSetBase, Stamina, OldStamina);
-}
-void UCharacterAttributeSetBase::OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharacterAttributeSetBase, MaxStamina, OldMaxStamina);
-}
-void UCharacterAttributeSetBase::OnRep_MentalHealth(const FGameplayAttributeData& OldMentalHealth)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharacterAttributeSetBase, MentalHealth, OldMentalHealth);
-}
-void UCharacterAttributeSetBase::OnRep_MaxMentalHealth(const FGameplayAttributeData& OldMaxMentalHealth)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharacterAttributeSetBase, MaxMentalHealth, OldMaxMentalHealth);
 }
 

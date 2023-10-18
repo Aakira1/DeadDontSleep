@@ -2,8 +2,7 @@
 
 #include "Character/Player/PlayerCharacter.h"
 #include "Character/Abilities/CharacterSystemComponent.h"
-
-
+#include "Character/Abilities/AttributeSets/CharacterAttributeSetBase.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -19,28 +18,22 @@ APlayerCharacter::APlayerCharacter()
 	AbilityComponent->SetIsReplicated(true);
 	AbilityComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 	
-	AttributeSetBase = CreateDefaultSubobject<UCharacterAttributeSetBase>("Attributes");
-
+	//AttributeSetBase = CreateDefaultSubobject<UCharacterAttributeSetBase>("Attributes");
 }
-
+/*---------------------------*/#pragma region Begin, Tick, SPIC
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (AbilityComponent && AttributeSetBase)
+	if (AbilityComponent)
 	{
-		// Initialize Gameplay Ability Component
-		AbilityComponent->InitAbilityActorInfo(this, this);
+		BaseAttributeSetBase = AbilityComponent->GetSet<UCharacterAttributeSetBase>();
 
-		// set default attribute values
-		AttributeSetBase->InitHealth(Avg_Health);
-		AttributeSetBase->InitStamina(Avg_Stamina);
-		AttributeSetBase->InitMentalHealth(Avg_Mental_Health);
-		// set max attribute values
-		AttributeSetBase->InitMaxHealth(MaxHealth);
-		AttributeSetBase->InitMaxStamina(Max_Stamina);
-		AttributeSetBase->InitMaxMentalHealth(Max_Mental_Health);
+		AbilityComponent->GetGameplayAttributeValueChangeDelegate(BaseAttributeSetBase->GetHealthAttribute()).AddUObject(this, &APlayerCharacter::OnHealthChangedNative);
+		AbilityComponent->GetGameplayAttributeValueChangeDelegate(BaseAttributeSetBase->GetStaminaAttribute()).AddUObject(this, &APlayerCharacter::OnStaminaChangedNative);
+		AbilityComponent->GetGameplayAttributeValueChangeDelegate(BaseAttributeSetBase->GetMentalHealthAttribute()).AddUObject(this, &APlayerCharacter::OnMentalChangedNative);
+		//const_cast<UCharacterAttributeSetBase*>(BaseAttributeSetBase)->SpeedChangeDelegate.AddDynamic(this, &ABaseCharacter::OnSpeedChangeNative);
 	}
 }
 
@@ -63,82 +56,32 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	BindInput();
 }
-
-
+void APlayerCharacter::BindInput()
+{
+}
+#pragma endregion Begin, Tick, SPIC
+/*---------------------------*/#pragma region GAS System
+//
 UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
 {
 	//needs to return AbilitySystemComponent Object
 	return AbilityComponent;
 }
-
-void APlayerCharacter::InitializeAbilities()
+//
+void APlayerCharacter::InitializeAbilities(TSubclassOf<UGGGameplayAbility> AbilityToGet, int32 AbilityLevel)
 {
-	// Give Abilities, Server Only
-	if (!HasAuthority() || !AbilityComponent) return;
-
-	for (TSubclassOf<UGGGameplayAbility>& Ability : DefaultAbilities)
+	if (AbilityComponent)
 	{
-		//this will determine based on the players level when to give the ability
-		AbilityComponent->GiveAbility(FGameplayAbilitySpec(Ability, 1, 
-			static_cast<int32>(Ability.GetDefaultObject()->AbilityInputID), this));
-	}
-}
-
-void APlayerCharacter::InitializeEffects()
-{
-	if (!AbilityComponent) return;
-
-	FGameplayEffectContextHandle EffectContext = AbilityComponent->MakeEffectContext();
-	EffectContext.AddSourceObject(this);
-
-	for (TSubclassOf<UGameplayEffect>& Effect : DefaultEffects)
-	{
-		FGameplayEffectSpecHandle SpecHandle = AbilityComponent->MakeOutgoingSpec(Effect, 1, EffectContext);
-		if (SpecHandle.IsValid())
+		if (HasAuthority() && AbilityToGet)
 		{
-			FActiveGameplayEffectHandle GEHandle = AbilityComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+			AbilityComponent->GiveAbility(FGameplayAbilitySpec(AbilityToGet, AbilityLevel, 0));
 		}
+		AbilityComponent->InitAbilityActorInfo(this, this);
 	}
 }
 
-void APlayerCharacter::PossessedBy(AController* NewController)
-{
-	Super::PossessedBy(NewController);
 
-	if (!AbilityComponent) return;
-
-	AbilityComponent->InitAbilityActorInfo(this, this);
-
-	InitializeAbilities();
-	InitializeEffects();
-}
-
-void APlayerCharacter::OnRep_PlayerState()
-{
-	Super::OnRep_PlayerState();
-
-	if (!AbilityComponent) return;
-
-	AbilityComponent->InitAbilityActorInfo(this, this);
-
-	BindInput();
-
-	InitializeEffects();
-}
-
-void APlayerCharacter::BindInput()
-{
-	if (bIsInputBound || !AbilityComponent || !IsValid(InputComponent)) return;
-
-	FTopLevelAssetPath EnumAssetPath = FTopLevelAssetPath(FName("/Script/TheDeadDontSleep"), FName("EAbilityInputID"));
-	AbilityComponent->BindAbilityActivationToInputComponent(
-		InputComponent, FGameplayAbilityInputBinds(FString("Confirm"), FString("Cancel"),
-			EnumAssetPath, static_cast<int32>(EAbilityInputID::Confirm), static_cast<int32>(EAbilityInputID::Cancel)));
-
-	bIsInputBound = true;
-}
-
-
+/*---------------------------*/#pragma region Player Movement
 //Start & Stop the Players sprinting 
 void APlayerCharacter::IsSprinting()
 {
@@ -148,6 +91,7 @@ void APlayerCharacter::IsSprinting()
 	// Max walk speed set to desired speed to match function requirements.
 	GetCharacterMovement()->MaxWalkSpeed = 600.0f;
 }
+//
 void APlayerCharacter::StopSprinting() 
 {
 	// boolean for isSprinting set to false
@@ -193,7 +137,66 @@ void APlayerCharacter::ImpactOnLand()
 		}
 	}
 }
+#pragma endregion Player Movement and Landing Mechanics
 
+void APlayerCharacter::GetHealthValues(float& Health, float& MaxHealth)
+{
+	if (BaseAttributeSetBase)
+	{
+		Health = BaseAttributeSetBase->GetHealth();
+		MaxHealth = BaseAttributeSetBase->GetMaxHealth();
+	}
+}
 
+void APlayerCharacter::GetStaminaValues(float& Stamina, float& MaxStamina)
+{
+	if (BaseAttributeSetBase)
+	{
+		Stamina = BaseAttributeSetBase->GetStamina();
+		MaxStamina = BaseAttributeSetBase->GetMaxStamina();
+	}
+}
 
+void APlayerCharacter::GetMentalHealthValues(float& Mental, float& MaxMental)
+{
+	if (BaseAttributeSetBase)
+	{
+		Mental = BaseAttributeSetBase->GetMentalHealth();
+		MaxMental = BaseAttributeSetBase->GetMaxMentalHealth();
+	}
+}
 
+void APlayerCharacter::SetHealthValues(float NewHealth, float NewMaxHealth)
+{
+	AbilityComponent->ApplyModToAttribute(BaseAttributeSetBase->GetHealthAttribute(), EGameplayModOp::Override, NewHealth);
+	AbilityComponent->ApplyModToAttribute(BaseAttributeSetBase->GetMaxHealthAttribute(), EGameplayModOp::Override, NewMaxHealth);
+}
+
+void APlayerCharacter::SetStaminaValues(float NewStamina, float NewMaxStamina)
+{
+	AbilityComponent->ApplyModToAttribute(BaseAttributeSetBase->GetHealthAttribute(), EGameplayModOp::Override, NewStamina);
+	AbilityComponent->ApplyModToAttribute(BaseAttributeSetBase->GetHealthAttribute(), EGameplayModOp::Override, NewMaxStamina);
+}
+
+void APlayerCharacter::SetMentalHealthValues(float NewMentalH, float NewMaxMentalH)
+{
+	AbilityComponent->ApplyModToAttribute(BaseAttributeSetBase->GetHealthAttribute(), EGameplayModOp::Override, NewMentalH);
+	AbilityComponent->ApplyModToAttribute(BaseAttributeSetBase->GetHealthAttribute(), EGameplayModOp::Override, NewMaxMentalH);
+}
+
+void APlayerCharacter::OnHealthChangedNative(const FOnAttributeChangeData& Data)
+{
+	OnHealthChanged(Data.OldValue, Data.NewValue);
+}
+
+void APlayerCharacter::OnStaminaChangedNative(const FOnAttributeChangeData& Data)
+{
+	OnStaminaChanged(Data.OldValue, Data.NewValue);
+}
+
+void APlayerCharacter::OnMentalChangedNative(const FOnAttributeChangeData& Data)
+{
+	OnMentalChanged(Data.OldValue, Data.NewValue);
+}
+
+#pragma endregion GAS System 

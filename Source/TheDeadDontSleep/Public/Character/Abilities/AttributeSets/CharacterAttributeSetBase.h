@@ -34,53 +34,34 @@ public:
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Health", ReplicatedUsing = OnRep_Health)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UCharacterAttributeSetBase, Health)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Health", ReplicatedUsing = OnRep_MaxHealth)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UCharacterAttributeSetBase, MaxHealth)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Stamina", ReplicatedUsing = OnRep_Stamina)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stamina")
 	FGameplayAttributeData Stamina;
 	ATTRIBUTE_ACCESSORS(UCharacterAttributeSetBase, Stamina)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Stamina", ReplicatedUsing = OnRep_MaxStamina)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stamina")
 	FGameplayAttributeData MaxStamina;
 	ATTRIBUTE_ACCESSORS(UCharacterAttributeSetBase, MaxStamina)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Mindset", ReplicatedUsing = OnRep_MentalHealth)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mindset") 
 	FGameplayAttributeData MentalHealth;
 	ATTRIBUTE_ACCESSORS(UCharacterAttributeSetBase, MentalHealth)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Mindset", ReplicatedUsing = OnRep_MaxMentalHealth)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mindset")
 	FGameplayAttributeData MaxMentalHealth;
 	ATTRIBUTE_ACCESSORS(UCharacterAttributeSetBase, MaxMentalHealth)
 
-
-	/* Damage is a meta attribute used by the DamageExecution to calculate final damage, which then turns into 
-	   Temporary Value - Not Replicated
-	*/
-	UPROPERTY(BlueprintReadOnly, Category = "Damage")
+		/* Damage is a meta attribute used by the DamageExecution to calculate final damage, which then turns into
+		   Temporary Value - Not Replicated
+		*/
+		UPROPERTY(BlueprintReadOnly, Category = "Damage")
 	FGameplayAttributeData Damage;
 	ATTRIBUTE_ACCESSORS(UCharacterAttributeSetBase, Damage)
-
-	UFUNCTION()
-	virtual void OnRep_Health(const FGameplayAttributeData& OldHealth);
-	UFUNCTION()
-	virtual void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth);
-	UFUNCTION()
-	virtual void OnRep_Stamina(const FGameplayAttributeData& OldStamina);
-	UFUNCTION()
-	virtual void OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina);
-	UFUNCTION()
-	virtual void OnRep_MentalHealth(const FGameplayAttributeData& OldMentalHealth);
-	UFUNCTION()
-	virtual void OnRep_MaxMentalHealth(const FGameplayAttributeData& OldMaxMentalHealth);
-
-
-
-
-
 };

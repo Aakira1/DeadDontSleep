@@ -13,7 +13,6 @@ UInventorySystem::UInventorySystem()
 	// ...
 }
 
-
 // Called when the game starts
 void UInventorySystem::BeginPlay()
 {
@@ -22,7 +21,6 @@ void UInventorySystem::BeginPlay()
 	// ...
 	
 }
-
 
 // Called every frame
 void UInventorySystem::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

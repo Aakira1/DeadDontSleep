@@ -18,4 +18,6 @@ class THEDEADDONTSLEEP_API UGGGameplayAbility : public UGameplayAbility
 public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Ability")
 	EAbilityInputID AbilityInputID{	EAbilityInputID::None };
+
+	FGameplayAbilitySpecHandle GiveAbilityAndActivateOnce(const FGameplayAbilitySpec& AbilitySpec, const FGameplayEventData* GameplayEventData);
 };

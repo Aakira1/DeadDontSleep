@@ -10,9 +10,6 @@
 #include <Character/Abilities/GameplayAbilities/GGGameplayAbility.h>
 #include "PlayerCharacter.generated.h"
 
-
-
-
 #pragma region UENUMS
 UENUM(BlueprintType)
 enum class LandingState : uint8 {
@@ -28,6 +25,8 @@ enum class AnimState : uint8 {
 	RIFLE =	2	UMETA(DisplayName = "Rifle")
 };
 #pragma endregion Likley To moved to a data set
+
+class UCharacterAttributeSetBase;
 
 UCLASS()
 class APlayerCharacter : public ACharacter, public IAbilitySystemInterface
@@ -54,71 +53,81 @@ protected:
 	bool bIsInputBound{ false };
 
 #pragma endregion Tick, Input, Begin
-#pragma region
-protected:
-	////Put Input mappings in here
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	//class UInputAction* FireAbilityAction;
-	//
-	////Functions go here
-	//void OnFireAbility(const FInputActionValue& Value);
-
-#pragma endregion
 /*---------------------------------*/#pragma region GAS Ability system
+protected:
+	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
+	//float Avg_Health = 100.0;
+	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
+	//float Avg_Stamina = 100.0;
+	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
+	//float Avg_Mental_Health = 100.0;
+	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
+	//float Max_Health = 100.0;
+	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
+	//float Max_Stamina = 100.0;
+	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
+	//float Max_Mental_Health = 100.0;
 public:
 	/****************
 	* Ability System
 	*****************/
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-	virtual void InitializeAbilities();
-	virtual void InitializeEffects();
 
-protected:
+	UFUNCTION(BlueprintCallable, Category = "GAS|Ability Component")
+	void InitializeAbilities(TSubclassOf<UGGGameplayAbility> AbilityToGet, int32 AbilityLevel);
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GAS|Ability Component")
 	class UCharacterSystemComponent* AbilityComponent;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GAS|Ability Attributes")
+	const class UCharacterAttributeSetBase* BaseAttributeSetBase;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GAS|Ability Attributes")
 	class UCharacterAttributeSetBase* AttributeSetBase;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
-	TArray<TSubclassOf<class UGGGameplayAbility>> DefaultAbilities;
+	//UPROPERTY(VisibleAnywhere, Category = "GAS|Default Abilities")
+	//TArray<TSubclassOf<class UGGGameplayAbility>> DefaultAbilities;
+	//
+	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Default Effects")
+	//TArray<TSubclassOf<class UGameplayEffect>> DefaultEffects;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
-	TArray<TSubclassOf<class UGameplayEffect>> DefaultEffects;
+#pragma region Attribute Variables/Functions
 
+	UFUNCTION(BlueprintPure, Category = "BaseCharacter")
+	void GetHealthValues(float& Health, float& M_Health);
+	UFUNCTION(BlueprintPure, Category = "BaseCharacter")
+	void GetStaminaValues(float& Stamina, float& MaxStamina);
+	UFUNCTION(BlueprintPure, Category = "BaseCharacter")
+	void GetMentalHealthValues(float& Mental, float& MaxMental);
+	UFUNCTION(BlueprintCallable, Category = "BaseCharacter")
+	void SetHealthValues(float NewHealth, float NewMaxHealth);
+	UFUNCTION(BlueprintCallable, Category = "BaseCharacter")
+	void SetStaminaValues(float NewStamina, float NewMaxStamina);
+	UFUNCTION(BlueprintCallable, Category = "BaseCharacter")
+	void SetMentalHealthValues(float NewMentalH, float NewMaxMentalH);
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
-	float Avg_Health = 100.0;
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
-	float Avg_Stamina = 100.0;
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
-	float Avg_Mental_Health = 100.0;
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
-	float MaxHealth = 100.0;
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
-	float Max_Stamina = 100.0;
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
-	float Max_Mental_Health = 100.0;
+	void OnHealthChangedNative(const FOnAttributeChangeData& Data);
+	void OnStaminaChangedNative(const FOnAttributeChangeData& Data);
+	void OnMentalChangedNative(const FOnAttributeChangeData& Data);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "BaseCharacter")
+	void OnHealthChanged(float OldValue, float NewValue);
+	UFUNCTION(BlueprintImplementableEvent, Category = "BaseCharacter")
+	void OnStaminaChanged(float OldValue, float NewValue);
+	UFUNCTION(BlueprintImplementableEvent, Category = "BaseCharacter")
+	void OnMentalChanged(float OldValue, float NewValue);
+#pragma endregion Attribute Variables/Functions
 
 	//Init Attributes
-	FORCEINLINE class UCharacterAttributeSetBase* GetAttributes() const { return AttributeSetBase; }
+	//FORCEINLINE class UCharacterAttributeSetBase* GetAttributes() const { return AttributeSetBase; }
 
 #pragma endregion GAS System
 /*---------------------------------*/#pragma region Player Properties 
-public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
 	bool isRightShoulder;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera")
 	float TargetArmLength;
-
-	//UFUNCTION(BlueprintCallable, Category = "GAS")
-	virtual void PossessedBy(AController* NewController);
-	//UFUNCTION(BlueprintCallable, Category = "GAS")
-	virtual void OnRep_PlayerState() override;	
-
-
 #pragma endregion Player Camera Settings
 /*---------------------------------*/#pragma region Player Movement 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
