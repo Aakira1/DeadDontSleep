@@ -61,13 +61,14 @@ void APlayerCharacter::BindInput()
 }
 #pragma endregion Begin, Tick, SPIC
 /*---------------------------*/#pragma region GAS System
-//
+// Obtains the Ability system to get attributes etc.
 UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
 {
 	//needs to return AbilitySystemComponent Object
 	return AbilityComponent;
 }
-//
+
+// Initializes the Abilities in the blueprint side
 void APlayerCharacter::InitializeAbilities(TSubclassOf<UGGGameplayAbility> AbilityToGet, int32 AbilityLevel)
 {
 	if (AbilityComponent)
@@ -80,7 +81,64 @@ void APlayerCharacter::InitializeAbilities(TSubclassOf<UGGGameplayAbility> Abili
 	}
 }
 
+// currently produce zero value return
+void APlayerCharacter::GetHealthValues(float& Health, float& MaxHealth)
+{
+	if (BaseAttributeSetBase)
+	{
+		Health = BaseAttributeSetBase->GetHealth();
+		MaxHealth = BaseAttributeSetBase->GetMaxHealth();
+	}
+}
+void APlayerCharacter::GetStaminaValues(float& Stamina, float& MaxStamina)
+{
+	if (BaseAttributeSetBase)
+	{
+		Stamina = BaseAttributeSetBase->GetStamina();
+		MaxStamina = BaseAttributeSetBase->GetMaxStamina();
+	}
+}
+void APlayerCharacter::GetMentalHealthValues(float& Mental, float& MaxMental)
+{
+	if (BaseAttributeSetBase)
+	{
+		Mental = BaseAttributeSetBase->GetMentalHealth();
+		MaxMental = BaseAttributeSetBase->GetMaxMentalHealth();
+	}
+}
 
+// Sets Players Health if you wish to us a component health system
+void APlayerCharacter::SetHealthValues(float NewHealth, float NewMaxHealth)
+{
+	AbilityComponent->ApplyModToAttribute(BaseAttributeSetBase->GetHealthAttribute(), EGameplayModOp::Override, NewHealth);
+	AbilityComponent->ApplyModToAttribute(BaseAttributeSetBase->GetMaxHealthAttribute(), EGameplayModOp::Override, NewMaxHealth);
+}
+void APlayerCharacter::SetStaminaValues(float NewStamina, float NewMaxStamina)
+{
+	AbilityComponent->ApplyModToAttribute(BaseAttributeSetBase->GetHealthAttribute(), EGameplayModOp::Override, NewStamina);
+	AbilityComponent->ApplyModToAttribute(BaseAttributeSetBase->GetHealthAttribute(), EGameplayModOp::Override, NewMaxStamina);
+}
+void APlayerCharacter::SetMentalHealthValues(float NewMentalH, float NewMaxMentalH)
+{
+	AbilityComponent->ApplyModToAttribute(BaseAttributeSetBase->GetHealthAttribute(), EGameplayModOp::Override, NewMentalH);
+	AbilityComponent->ApplyModToAttribute(BaseAttributeSetBase->GetHealthAttribute(), EGameplayModOp::Override, NewMaxMentalH);
+}
+
+// Is called to any changes to players attributes.
+void APlayerCharacter::OnHealthChangedNative(const FOnAttributeChangeData& Data)
+{
+	OnHealthChanged(Data.OldValue, Data.NewValue);
+}
+void APlayerCharacter::OnStaminaChangedNative(const FOnAttributeChangeData& Data)
+{
+	OnStaminaChanged(Data.OldValue, Data.NewValue);
+}
+void APlayerCharacter::OnMentalChangedNative(const FOnAttributeChangeData& Data)
+{
+	OnMentalChanged(Data.OldValue, Data.NewValue);
+}
+
+#pragma endregion GAS System
 /*---------------------------*/#pragma region Player Movement
 //Start & Stop the Players sprinting 
 void APlayerCharacter::IsSprinting()
@@ -92,7 +150,7 @@ void APlayerCharacter::IsSprinting()
 	GetCharacterMovement()->MaxWalkSpeed = 600.0f;
 }
 //
-void APlayerCharacter::StopSprinting() 
+void APlayerCharacter::StopSprinting()
 {
 	// boolean for isSprinting set to false
 	isSprinting = false;
@@ -114,7 +172,7 @@ void APlayerCharacter::ImpactOnLand()
 	{
 		/*Debugging Purpose Only*/
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, Message);
-		
+
 		if ((abs(Z) >= 1) == true && (abs(Z) <= 500) == true)
 		{
 			/*Debuggin Purpose Only*/
@@ -125,78 +183,16 @@ void APlayerCharacter::ImpactOnLand()
 		{
 			/*Debuggin Purpose Only*/
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Soft"));
-			
+
 			LandingState::SOFT;
 		}
-		if ((abs(Z) > 1250) == true) 
+		if ((abs(Z) > 1250) == true)
 		{
 			/*Debugging Purpose Only*/
 			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Soft"));
-			
+
 			LandingState::HEAVY;
 		}
 	}
 }
 #pragma endregion Player Movement and Landing Mechanics
-
-void APlayerCharacter::GetHealthValues(float& Health, float& MaxHealth)
-{
-	if (BaseAttributeSetBase)
-	{
-		Health = BaseAttributeSetBase->GetHealth();
-		MaxHealth = BaseAttributeSetBase->GetMaxHealth();
-	}
-}
-
-void APlayerCharacter::GetStaminaValues(float& Stamina, float& MaxStamina)
-{
-	if (BaseAttributeSetBase)
-	{
-		Stamina = BaseAttributeSetBase->GetStamina();
-		MaxStamina = BaseAttributeSetBase->GetMaxStamina();
-	}
-}
-
-void APlayerCharacter::GetMentalHealthValues(float& Mental, float& MaxMental)
-{
-	if (BaseAttributeSetBase)
-	{
-		Mental = BaseAttributeSetBase->GetMentalHealth();
-		MaxMental = BaseAttributeSetBase->GetMaxMentalHealth();
-	}
-}
-
-void APlayerCharacter::SetHealthValues(float NewHealth, float NewMaxHealth)
-{
-	AbilityComponent->ApplyModToAttribute(BaseAttributeSetBase->GetHealthAttribute(), EGameplayModOp::Override, NewHealth);
-	AbilityComponent->ApplyModToAttribute(BaseAttributeSetBase->GetMaxHealthAttribute(), EGameplayModOp::Override, NewMaxHealth);
-}
-
-void APlayerCharacter::SetStaminaValues(float NewStamina, float NewMaxStamina)
-{
-	AbilityComponent->ApplyModToAttribute(BaseAttributeSetBase->GetHealthAttribute(), EGameplayModOp::Override, NewStamina);
-	AbilityComponent->ApplyModToAttribute(BaseAttributeSetBase->GetHealthAttribute(), EGameplayModOp::Override, NewMaxStamina);
-}
-
-void APlayerCharacter::SetMentalHealthValues(float NewMentalH, float NewMaxMentalH)
-{
-	AbilityComponent->ApplyModToAttribute(BaseAttributeSetBase->GetHealthAttribute(), EGameplayModOp::Override, NewMentalH);
-	AbilityComponent->ApplyModToAttribute(BaseAttributeSetBase->GetHealthAttribute(), EGameplayModOp::Override, NewMaxMentalH);
-}
-
-void APlayerCharacter::OnHealthChangedNative(const FOnAttributeChangeData& Data)
-{
-	OnHealthChanged(Data.OldValue, Data.NewValue);
-}
-
-void APlayerCharacter::OnStaminaChangedNative(const FOnAttributeChangeData& Data)
-{
-	OnStaminaChanged(Data.OldValue, Data.NewValue);
-}
-
-void APlayerCharacter::OnMentalChangedNative(const FOnAttributeChangeData& Data)
-{
-	OnMentalChanged(Data.OldValue, Data.NewValue);
-}
-
-#pragma endregion GAS System 

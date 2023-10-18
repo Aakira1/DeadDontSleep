@@ -54,19 +54,6 @@ protected:
 
 #pragma endregion Tick, Input, Begin
 /*---------------------------------*/#pragma region GAS Ability system
-protected:
-	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
-	//float Avg_Health = 100.0;
-	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
-	//float Avg_Stamina = 100.0;
-	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
-	//float Avg_Mental_Health = 100.0;
-	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
-	//float Max_Health = 100.0;
-	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
-	//float Max_Stamina = 100.0;
-	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Attributes")
-	//float Max_Mental_Health = 100.0;
 public:
 	/****************
 	* Ability System
@@ -82,17 +69,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GAS|Ability Attributes")
 	const class UCharacterAttributeSetBase* BaseAttributeSetBase;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GAS|Ability Attributes")
-	class UCharacterAttributeSetBase* AttributeSetBase;
-
-	//UPROPERTY(VisibleAnywhere, Category = "GAS|Default Abilities")
-	//TArray<TSubclassOf<class UGGGameplayAbility>> DefaultAbilities;
-	//
-	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS|Default Effects")
-	//TArray<TSubclassOf<class UGameplayEffect>> DefaultEffects;
-
 #pragma region Attribute Variables/Functions
-
 	UFUNCTION(BlueprintPure, Category = "BaseCharacter")
 	void GetHealthValues(float& Health, float& M_Health);
 	UFUNCTION(BlueprintPure, Category = "BaseCharacter")
@@ -117,9 +94,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "BaseCharacter")
 	void OnMentalChanged(float OldValue, float NewValue);
 #pragma endregion Attribute Variables/Functions
-
-	//Init Attributes
-	//FORCEINLINE class UCharacterAttributeSetBase* GetAttributes() const { return AttributeSetBase; }
+	// Add variables Here
 
 #pragma endregion GAS System
 /*---------------------------------*/#pragma region Player Properties 
@@ -226,7 +201,7 @@ private:
 
 #pragma endregion
 /*---------------------------------*/#pragma region Object Handles to reduce Indentation
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Custom Nodes")
 	FDoOnce DoOnce;
 #pragma endregion Custom Replicates of Blueprint Functions
 
