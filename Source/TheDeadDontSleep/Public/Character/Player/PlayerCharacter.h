@@ -105,6 +105,7 @@ public:
 	float TargetArmLength;
 #pragma endregion Player Camera Settings
 /*---------------------------------*/#pragma region Player Movement 
+protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	LandingState PLandingState;
 
