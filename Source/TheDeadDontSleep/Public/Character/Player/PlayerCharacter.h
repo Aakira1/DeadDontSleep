@@ -50,7 +50,7 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual void BindInput();
-	bool bIsInputBound{ false };
+	bool bIsInputBound { false };
 
 #pragma endregion Tick, Input, Begin
 /*---------------------------------*/#pragma region GAS Ability system
@@ -59,15 +59,52 @@ public:
 	* Ability System
 	*****************/
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-
+	
+	void InitializeAttributes();
 	UFUNCTION(BlueprintCallable, Category = "GAS|Ability Component")
 	void InitializeAbilities(TSubclassOf<UGGGameplayAbility> AbilityToGet, int32 AbilityLevel);
-
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GAS|Ability Component")
 	class UCharacterSystemComponent* AbilityComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GAS|Ability Attributes")
-	const class UCharacterAttributeSetBase* BaseAttributeSetBase;
+	const class UCharacterAttributeSetBase* BaseAttributeSetBase;	
+
+
+
+	/*
+		Getters for attributes from CharacterAttributeSetBase (Some will be added.)
+	*/
+	UFUNCTION(BlueprintCallable, Category = "GAS|PlayerCharacter|Attributes")
+	int32 GetCharacterLevel() const;
+
+	UFUNCTION(BlueprintCallable, Category = "GAS|PlayerCharacter|Attributes")
+	float GetHealth() const;
+
+	UFUNCTION(BlueprintCallable, Category = "GAS|PlayerCharacter|Attributes")
+	float GetMaxHealth() const;
+
+	UFUNCTION(BlueprintCallable, Category = "GAS|PlayerCharacter|Attributes")
+	float GetStamina() const;
+
+	UFUNCTION(BlueprintCallable, Category = "GAS|PlayerCharacter|Attributes")
+	float GetMaxStamina() const;
+
+	// Gets the Current value of MoveSpeed
+	UFUNCTION(BlueprintCallable, Category = "GAS|PlayerCharacter|Attributes")
+	float GetMoveSpeed() const;
+
+	// Gets the Base value of MoveSpeed
+	UFUNCTION(BlueprintCallable, Category = "GAS|PlayerCharacter|Attributes")
+	float GetMoveSpeedBaseValue() const;
+
+	UFUNCTION(BlueprintCallable, Category = "GAS|PlayerCharacter")
+	virtual bool IsAlive() const;
+
+	virtual void Die();
+
+	UFUNCTION(BlueprintCallable, Category = "GAS|PlayerCharacter")
+	virtual void FinishDying();
 
 #pragma region Attribute Variables/Functions
 	UFUNCTION(BlueprintPure, Category = "BaseCharacter")
@@ -76,6 +113,7 @@ public:
 	void GetStaminaValues(float& Stamina, float& MaxStamina);
 	UFUNCTION(BlueprintPure, Category = "BaseCharacter")
 	void GetMentalHealthValues(float& Mental, float& MaxMental);
+
 	UFUNCTION(BlueprintCallable, Category = "BaseCharacter")
 	void SetHealthValues(float NewHealth, float NewMaxHealth);
 	UFUNCTION(BlueprintCallable, Category = "BaseCharacter")
@@ -93,8 +131,9 @@ public:
 	void OnStaminaChanged(float OldValue, float NewValue);
 	UFUNCTION(BlueprintImplementableEvent, Category = "BaseCharacter")
 	void OnMentalChanged(float OldValue, float NewValue);
-#pragma endregion Attribute Variables/Functions
-	// Add variables Here
+
+#pragma endregion Attribute Variables
+
 
 #pragma endregion GAS System
 /*---------------------------------*/#pragma region Player Properties 
@@ -159,6 +198,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	bool isAttacking;
+
 #pragma region Movement Functions
 	UFUNCTION(BlueprintCallable)
 	void ImpactOnLand();

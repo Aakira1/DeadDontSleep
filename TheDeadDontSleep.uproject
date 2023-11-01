@@ -45,7 +45,7 @@
 		},
 		{
 			"Name": "RestartEditor",
-			"Enabled": false,
+			"Enabled": true,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/a00eb1e478ae4a8fb655aa22f9125b07"
 		},
 		{
@@ -67,6 +67,14 @@
 		},
 		{
 			"Name": "NiagaraFluids",
+			"Enabled": true
+		},
+		{
+			"Name": "WaterExtras",
+			"Enabled": true
+		},
+		{
+			"Name": "Water",
 			"Enabled": true
 		}
 	]
