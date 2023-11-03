@@ -2,6 +2,7 @@
 
 
 #include "Character/Abilities/GDDamageExecCalc.h"
+#include "Character/Abilities/AttributeSets/CharacterAttributeSetBase.h"
 
 // Declare the attributes to capture and define how we want to capture them from the Source and Target.
 struct GDDamageStatics
@@ -16,10 +17,10 @@ struct GDDamageStatics
 		// We're not capturing anything from the Source in this example, but there could be like AttackPower attributes that you might want.
 
 		// Capture optional Damage set on the damage GE as a CalculationModifier under the ExecutionCalculation
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UGDAttributeSetBase, Damage, Source, true);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCharacterAttributeSetBase, Damage, Source, true);
 
 		// Capture the Target's Armor. Don't snapshot.
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UGDAttributeSetBase, Armor, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCharacterAttributeSetBase, Armor, Target, false);
 	}
 };
 
