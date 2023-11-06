@@ -16,6 +16,7 @@ APlayerCharacter::APlayerCharacter()
 	AbilityComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 
 	//AttributeSetBase = CreateDefaultSubobject<UCharacterAttributeSetBase>("Attributes");
+	
 }
 
 #pragma region /---------------------------/
@@ -23,6 +24,10 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (Controller && Controller->IsLocalPlayerController())
+	{
+		//...
+	}
 }
 
 void APlayerCharacter::BeginPlay()
@@ -40,21 +45,6 @@ void APlayerCharacter::BeginPlay()
 	}
 }
 
-void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	/*
-		Setup Action Bindings Here
-	*/
-
-
-	BindInput();
-}
-
-void APlayerCharacter::BindInput()
-{
-}
 #pragma endregion Tick, BeginPlay, SetupPlayerInputComponent, BindInput
 #pragma region /---------------------------/
 UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
@@ -195,7 +185,6 @@ void APlayerCharacter::OnMentalChangedNative(const FOnAttributeChangeData& Data)
 	OnMentalChanged(Data.OldValue, Data.NewValue);
 }
 #pragma endregion GAS System
-
 #pragma region /---------------------------/
 void APlayerCharacter::ImpactOnLand()
 {

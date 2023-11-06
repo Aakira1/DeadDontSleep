@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// All this will be moved to a player state & player controller in future
 #pragma once
 //#include "AbilitySystemInterface.h"
 #include "Engine.h" 
@@ -46,12 +46,6 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	virtual void BindInput();
-	bool bIsInputBound { false };
-
 #pragma endregion Tick, Input, Begin
 /*---------------------------------*/#pragma region GAS Ability system
 public:
@@ -69,8 +63,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GAS|Ability Attributes")
 	const class UCharacterAttributeSetBase* BaseAttributeSetBase;	
-
-
 
 	/*
 		Getters for attributes from CharacterAttributeSetBase (Some will be added.)
@@ -245,5 +237,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Custom Nodes")
 	FDoOnce DoOnce;
 #pragma endregion Custom Replicates of Blueprint Functions
+
+
 
 };
