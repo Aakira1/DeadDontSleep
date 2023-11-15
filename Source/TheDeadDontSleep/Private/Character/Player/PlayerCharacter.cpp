@@ -1,6 +1,12 @@
+
+// Game
 #include "Character/Player/PlayerCharacter.h"
 #include "Character/Abilities/CharacterSystemComponent.h"
 #include "Character/Abilities/AttributeSets/CharacterAttributeSetBase.h"
+
+// Engine
+#include "DrawDebugHelpers.h"
+#include <PropertyEditorModule.h>    
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -16,18 +22,23 @@ APlayerCharacter::APlayerCharacter()
 	AbilityComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 
 	//AttributeSetBase = CreateDefaultSubobject<UCharacterAttributeSetBase>("Attributes");
-	
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~Interaction~~~~~~~~~~~~~~~~~~~~~~~~~
+	InteractionCheckFrequency = 0.1;
+    InteractionCheckDistance = 230.0f;
+
+    BaseEyeHeight = 74.0f;
 }
 
-#pragma region /---------------------------/
+#pragma region /---------------------------/ Tick, BeginPlay, SetupPlayerInputComponent, Interact
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (Controller && Controller->IsLocalPlayerController())
-	{
-		//...
-	}
+    if(GetWorld()->TimeSince(InteractionData.LastInteractionCheckTime) > InteractionCheckFrequency)
+    {
+        PerformInteractionCheck();
+    }
 }
 
 void APlayerCharacter::BeginPlay()
@@ -45,8 +56,146 @@ void APlayerCharacter::BeginPlay()
 	}
 }
 
-#pragma endregion Tick, BeginPlay, SetupPlayerInputComponent, BindInput
-#pragma region /---------------------------/
+void APlayerCharacter::PerformInteractionCheck()
+{
+    //GEngine->AddOnScreenDebugMessage(-1, 100.0f, FColor::Yellow,TEXT("Perform Interaction Check Accessed..."));
+    
+    InteractionData.LastInteractionCheckTime = GetWorld()->GetTimeSeconds();
+
+    FVector TraceStart{GetPawnViewLocation()};
+    FVector TraceEnd{TraceStart + (GetViewRotation().Vector() * InteractionCheckDistance)};
+
+    FCollisionQueryParams QueryParams;
+    QueryParams.AddIgnoredActor(this);
+    FHitResult TraceHit;
+
+    double LookDirection{FVector::DotProduct(GetActorForwardVector(), GetViewRotation().Vector())};
+
+
+    DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 1.0f, 0);
+    
+    if (GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
+    {
+        //GEngine->AddOnScreenDebugMessage(-1, 100.0f, FColor::Purple, TEXT("Start Interaction"));
+        if (TraceHit.GetActor()->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
+        {
+            //GEngine->AddOnScreenDebugMessage(-1, 100.0f, FColor::MakeRandomColor(), TEXT("Begin Interaction"));
+            const float Distance = (TraceStart - TraceHit.ImpactPoint).Size();
+
+            if (TraceHit.GetActor() == InteractionData.CurrentInteractable && Distance < InteractionCheckDistance)
+            {
+                FoundInteractable(TraceHit.GetActor());
+                FString Name = TraceHit.GetActor()->GetName();
+                GEngine->AddOnScreenDebugMessage(-1, 100.0f, FColor::Green, Name);
+                return;
+            }
+
+            if (TraceHit.GetActor() == InteractionData.CurrentInteractable)
+            {
+                FString Name = TraceHit.GetActor()->GetName();
+                GEngine->AddOnScreenDebugMessage(-1, 100.0f, FColor::Green, Name);
+                return;
+            }
+        }
+    }
+    NoInteractableFound();
+}
+
+void APlayerCharacter::FoundInteractable(AActor* NewInteractable)
+{
+    if(IsInteracting())
+    {
+        EndInteract();
+    }
+
+    if (InteractionData.CurrentInteractable)
+    {
+        TargetInteractable = InteractionData.CurrentInteractable;
+        TargetInteractable->EndFocus();
+    }
+
+    InteractionData.CurrentInteractable = NewInteractable;
+    TargetInteractable = NewInteractable;
+
+    TargetInteractable->BeginFocus();
+}
+
+void APlayerCharacter::NoInteractableFound()
+{
+    //GEngine->AddOnScreenDebugMessage(-1, 800.0f, FColor::Red, TEXT("Interaction Reset."));
+    if (IsInteracting())
+    {
+        GetWorldTimerManager().ClearTimer(TimerHandleInteraction);
+    }
+
+    if (InteractionData.CurrentInteractable)
+    {
+        if (IsValid(TargetInteractable.GetObject()))
+        {
+            TargetInteractable->EndFocus();
+        }
+
+        //hide interaction widget on the HUD
+
+        InteractionData.CurrentInteractable = nullptr;
+        TargetInteractable = nullptr;
+    }
+}
+
+void APlayerCharacter::BeginInteract()
+{
+    // fail safe (verify nothing has change with the interactable state.)
+    PerformInteractionCheck();
+
+    if (InteractionData.CurrentInteractable)
+    {
+        if (IsValid(TargetInteractable.GetObject()))
+        {
+            TargetInteractable->BeginInteract();
+
+            if (FMath::IsNearlyZero(TargetInteractable->InteractableData.InteractionDuration, 0.1f))
+            {
+                Interact();
+            }
+            else
+            {
+                GEngine->AddOnScreenDebugMessage(-1, 100.0f, FColor::Blue, TEXT("Set Timer Accessed"));
+                
+                GetWorldTimerManager().SetTimer(TimerHandleInteraction,this, &APlayerCharacter::Interact,
+                                                TargetInteractable->InteractableData.InteractionDuration,false);
+            }
+        }
+    }
+}
+
+void APlayerCharacter::EndInteract()
+{
+    if(IsInteracting())
+    {
+        GetWorldTimerManager().ClearTimer(TimerHandleInteraction);
+
+        if(IsValid(TargetInteractable.GetObject()))
+        {
+            TargetInteractable->EndInteract();
+        }  
+    }
+}
+
+void APlayerCharacter::Interact()
+{
+    if(IsInteracting())
+    {
+        GetWorldTimerManager().ClearTimer(TimerHandleInteraction);
+
+        if(IsValid(TargetInteractable.GetObject()))
+        {
+            TargetInteractable->Interact();
+        }
+    }
+}
+
+#pragma endregion 
+#pragma region /---------------------------/ GAS System
 UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
 {
 	//needs to return AbilitySystemComponent Object
@@ -184,43 +333,44 @@ void APlayerCharacter::OnMentalChangedNative(const FOnAttributeChangeData& Data)
 {
 	OnMentalChanged(Data.OldValue, Data.NewValue);
 }
-#pragma endregion GAS System
-#pragma region /---------------------------/
+#pragma endregion 
+#pragma region /---------------------------/ Player Movement
 void APlayerCharacter::ImpactOnLand()
 {
-	// Get Actor Z Location
-	float Z = GetActorLocation().Z;
-
-	/*Debugging Purpose Only*/
-	FString Message = FString::Printf(TEXT("BeginPlay of %s - Location: %s"),
-		*(GetName()), *(GetActorLocation().ToString()));
-
-	if (GEngine)
-	{
-		/*Debugging Purpose Only*/
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, Message);
-
-		if ((abs(Z) >= 1) == true && (abs(Z) <= 500) == true)
-		{
-			/*Debuggin Purpose Only*/
-			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("True"));
-			LandingState::NORMAL;
-		}
-		if ((abs(Z) >= 501) == true && (abs(Z) <= 900) == true)
-		{
-			/*Debuggin Purpose Only*/
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Soft"));
-
-			LandingState::SOFT;
-		}
-		if ((abs(Z) > 1250) == true)
-		{
-			/*Debugging Purpose Only*/
-			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Soft"));
-
-			LandingState::HEAVY;
-		}
-	}
+	//// Get Actor Z Location
+	//float Z = GetActorLocation().Z;
+    //
+	///*Debugging Purpose Only*/
+	//FString Message = FString::Printf(TEXT("BeginPlay of %s - Location: %s"),
+	//	*(GetName()), *(GetActorLocation().ToString()));
+    //
+	//if (GEngine)
+	//{
+	//	/*Debugging Purpose Only*/
+	//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, Message);
+    //
+	//	if ((abs(Z) >= 1) == true && (abs(Z) <= 500) == true)
+	//	{
+	//		/*Debuggin Purpose Only*/
+	//		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("True"));
+	//		LandingState::NORMAL;
+	//	}
+	//	if ((abs(Z) >= 501) == true && (abs(Z) <= 900) == true)
+	//	{
+	//		/*Debuggin Purpose Only*/
+	//		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Soft"));
+    //
+	//		LandingState::SOFT;
+	//	}
+	//	if ((abs(Z) > 1250) == true)
+	//	{
+	//		/*Debugging Purpose Only*/
+	//		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("LandState Soft"));
+    //
+	//		LandingState::HEAVY;
+	//	}
+	//}
+    return;
 }
 void APlayerCharacter::IsSprinting()
 {
@@ -238,4 +388,4 @@ void APlayerCharacter::StopSprinting()
 	// Max walk speed set to desired speed to match function requirements.
 	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
 }
-#pragma endregion Player Movement
+#pragma endregion 
